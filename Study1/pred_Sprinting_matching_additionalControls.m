@@ -383,7 +383,7 @@ wJ(8)  = 0.0; % Normalized tendon forces
 wJ(9)  = 0.001; % Derivative of normalized tendon forces
 wJ(10) = 1.0; % Reserve actuators
 wJ(11) = 0.001; % Arm controls
-wJ(12) = 1.0; % Average speed
+wJ(12) = 0.0; % Average speed
 
 
 %% Formulate NLPs
