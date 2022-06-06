@@ -768,11 +768,11 @@ optimumOutput1 = saveOptimumFiles(scaling1,Options,optVars_sc1,optVars_nsc1,pred
         
         
         % Lower-limbs & Trunk reserves
-        scaling.uReserves = 10.*ones(17,1);
+        scaling.uReserves = 40.*ones(2,1);
         %scaling.uReserves([13:14,],1) = 80;
         %scaling.uReserves([7,8]) = 15;
-        scaling.uReserves([13,14]) = 40; %30
-        scaling.uReserves([15,16,17]) = 10;
+        %scaling.uReserves([13,14]) = 40; %30
+        %scaling.uReserves([15,16,17]) = 10;
         %scaling.uReserves(15:17) = 50;
         
         % Lower-bounds lower-limbs and trunk reserves
@@ -825,7 +825,7 @@ optimumOutput1 = saveOptimumFiles(scaling1,Options,optVars_sc1,optVars_nsc1,pred
         
         guess.aArms    = zeros(nq.arms,(Options.N*(d+1)));
         
-        guess.uReserves = zeros(nq.all-nq.arms-nq.abs,Options.N*d)./scaling.uReserves;
+        guess.uReserves = zeros(2,Options.N*d)./scaling.uReserves;
 
         if Options.prevSol == 'Y'
             if prevOpti.optimumOutput.options.N ~=Options.N
@@ -1101,12 +1101,12 @@ optimumOutput1 = saveOptimumFiles(scaling1,Options,optVars_sc1,optVars_nsc1,pred
         end
         costFunctions.f_J_dFT = Function('f_J_dFT',{dFT},{dFT_temp});
         
-        reserves_weights = ones(nq.all-nq.abs-nq.arms,1);
-        reserves_weights(13:14) = 0.01;
+        reserves_weights = ones(2,1);
+        reserves_weights(1:2) = 0.01;
         %reserves_weights(15:17) = 0.01;
         
         % Reserve actuators
-        reserves = MX.sym('reserves',nq.all-nq.abs-nq.arms);
+        reserves = MX.sym('reserves',2);
         reserves_temp = 0;
         for i = 1:length(reserves)
             reserves_temp = reserves_temp + ((reserves_weights(i).*reserves(i))./obj_range.uReserves(i)).^2;
@@ -1415,7 +1415,7 @@ optimumOutput1 = saveOptimumFiles(scaling1,Options,optVars_sc1,optVars_nsc1,pred
             % Reserve actuators controls
             uReserveskj = {};
             for j=1:d
-                uReserveskj{j}     = MX.sym(['uReserves_' num2str(k) '_' num2str(j)],17);
+                uReserveskj{j}     = MX.sym(['uReserves_' num2str(k) '_' num2str(j)],2);
                 w                  = {w{:}, uReserveskj{j}};
                 lbw                = [lbw bounds_sc.uReserves.lower'];
                 ubw                = [ubw bounds_sc.uReserves.upper'];
@@ -1571,119 +1571,119 @@ optimumOutput1 = saveOptimumFiles(scaling1,Options,optVars_sc1,optVars_nsc1,pred
                         % FTk: non-normalised unscaled tendon force
                         Ft_hip_flex_l   = FT_ini(mai(1).mus.l',1);
                         T_hip_flex_l    = calcMoms.f_T27(MA.hip_flex.l,Ft_hip_flex_l);
-                        g               = {g{:}, (T_hip_flex_l - outputF(jointi.hip_flex.l) + uReserves_nsc_ini(1))./1};
+                        g               = {g{:}, (T_hip_flex_l - outputF(jointi.hip_flex.l))./1};
                         lbg             = [lbg; 0];
                         ubg             = [ubg; 0];
 
                         % Hip flexion, right
                         Ft_hip_flex_r   = FT_ini(mai(1).mus.r',1);
                         T_hip_flex_r    = calcMoms.f_T27(MA.hip_flex.r,Ft_hip_flex_r);
-                        g               = {g{:}, (T_hip_flex_r - outputF(jointi.hip_flex.r) + uReserves_nsc_ini(2))./1};
+                        g               = {g{:}, (T_hip_flex_r - outputF(jointi.hip_flex.r))./1};
                         lbg             = [lbg; 0];
                         ubg             = [ubg; 0];
 
                         % Hip adduction, left
                         Ft_hip_add_l    = FT_ini(mai(2).mus.l',1);
                         T_hip_add_l     = calcMoms.f_T27(MA.hip_add.l,Ft_hip_add_l);
-                        g               = {g{:}, (T_hip_add_l - outputF(jointi.hip_add.l) + uReserves_nsc_ini(3))./1};
+                        g               = {g{:}, (T_hip_add_l - outputF(jointi.hip_add.l))./1};
                         lbg             = [lbg; 0];
                         ubg             = [ubg; 0];
 
                         % Hip adduction, right
                         Ft_hip_add_r    = FT_ini(mai(2).mus.r',1);
                         T_hip_add_r     = calcMoms.f_T27(MA.hip_add.r,Ft_hip_add_r);
-                        g               = {g{:}, (T_hip_add_r - outputF(jointi.hip_add.r) + uReserves_nsc_ini(4))./1};
+                        g               = {g{:}, (T_hip_add_r - outputF(jointi.hip_add.r))./1};
                         lbg             = [lbg; 0];
                         ubg             = [ubg; 0];
 
                         % Hip rotation, left
                         Ft_hip_rot_l    = FT_ini(mai(3).mus.l',1);
                         T_hip_rot_l     = calcMoms.f_T27(MA.hip_rot.l,Ft_hip_rot_l);
-                        g               = {g{:}, (T_hip_rot_l - outputF(jointi.hip_rot.l) + uReserves_nsc_ini(5))./1};
+                        g               = {g{:}, (T_hip_rot_l - outputF(jointi.hip_rot.l))./1};
                         lbg             = [lbg; 0];
                         ubg             = [ubg; 0];
 
                         % Hip rotation, right
                         Ft_hip_rot_r    = FT_ini(mai(3).mus.r',1);
                         T_hip_rot_r     = calcMoms.f_T27(MA.hip_rot.r,Ft_hip_rot_r);
-                        g               = {g{:}, (T_hip_rot_r - outputF(jointi.hip_rot.r) + uReserves_nsc_ini(6))./1};
+                        g               = {g{:}, (T_hip_rot_r - outputF(jointi.hip_rot.r))./1};
                         lbg             = [lbg; 0];
                         ubg             = [ubg; 0];
 
                         % Knee, left
                         Ft_knee_l       = FT_ini(mai(4).mus.l',1);
                         T_knee_l        = calcMoms.f_T13(MA.knee.l,Ft_knee_l);
-                        g               = {g{:}, (T_knee_l - outputF(jointi.knee.l) + uReserves_nsc_ini(7))./1};
+                        g               = {g{:}, (T_knee_l - outputF(jointi.knee.l))./1};
                         lbg             = [lbg; 0];
                         ubg             = [ubg; 0];
 
                         % Knee, right
                         Ft_knee_r       = FT_ini(mai(4).mus.r',1);
                         T_knee_r        = calcMoms.f_T13(MA.knee.r,Ft_knee_r);
-                        g               = {g{:}, (T_knee_r - outputF(jointi.knee.r) + uReserves_nsc_ini(8))./1};
+                        g               = {g{:}, (T_knee_r - outputF(jointi.knee.r))./1};
                         lbg             = [lbg; 0];
                         ubg             = [ubg; 0];
 
                         % Ankle, left
                         Ft_ankle_l      = FT_ini(mai(5).mus.l',1);
                         T_ankle_l       = calcMoms.f_T12(MA.ankle.l,Ft_ankle_l);
-                        g               = {g{:}, (T_ankle_l - outputF(jointi.ankle.l) + uReserves_nsc_ini(9))./1};
+                        g               = {g{:}, (T_ankle_l - outputF(jointi.ankle.l))./1};
                         lbg             = [lbg; 0];
                         ubg             = [ubg; 0];
 
                         % Ankle, right
                         Ft_ankle_r      = FT_ini(mai(5).mus.r',1);
                         T_ankle_r       = calcMoms.f_T12(MA.ankle.r,Ft_ankle_r);
-                        g               = {g{:}, (T_ankle_r - outputF(jointi.ankle.r) + uReserves_nsc_ini(10))./1};
+                        g               = {g{:}, (T_ankle_r - outputF(jointi.ankle.r))./1};
                         lbg             = [lbg; 0];
                         ubg             = [ubg; 0];
 
                         % Subtalar, left
                         Ft_subt_l       = FT_ini(mai(6).mus.l',1);
                         T_subt_l        = calcMoms.f_T12(MA.subt.l,Ft_subt_l);
-                        g               = {g{:}, (T_subt_l - outputF(jointi.subt.l) + uReserves_nsc_ini(11))./1};
+                        g               = {g{:}, (T_subt_l - outputF(jointi.subt.l))./1};
                         lbg             = [lbg; 0];
                         ubg             = [ubg; 0];
 
                         % Subtalar, right
                         Ft_subt_r       = FT_ini(mai(6).mus.r',1);
                         T_subt_r        = calcMoms.f_T12(MA.subt.r,Ft_subt_r);
-                        g               = {g{:}, (T_subt_r - outputF(jointi.subt.r) + uReserves_nsc_ini(12))./1};
+                        g               = {g{:}, (T_subt_r - outputF(jointi.subt.r))./1};
                         lbg             = [lbg; 0];
                         ubg             = [ubg; 0];
 
                         % MTP, left
                         Ft_mtp_l        = FT_ini(mai(7).mus.l',1);
                         T_mtp_l         = calcMoms.f_T4(MA.mtp.l,Ft_mtp_l);
-                        g               = {g{:}, (T_mtp_l - outputF(jointi.mtp.l) + uReserves_nsc_ini(13) - Options.MTP_stiff*Xk_nsc(jointi.mtp.l))./1};
+                        g               = {g{:}, (T_mtp_l - outputF(jointi.mtp.l) + uReserves_nsc_ini(1) - Options.MTP_stiff*Xk_nsc(jointi.mtp.l))./1};
                         lbg             = [lbg; 0];
                         ubg             = [ubg; 0];
 
                         % MTP, right
                         Ft_mtp_r        = FT_ini(mai(7).mus.r',1);
                         T_mtp_r         = calcMoms.f_T4(MA.mtp.r,Ft_mtp_r);
-                        g               = {g{:}, (T_mtp_r - outputF(jointi.mtp.r) + uReserves_nsc_ini(14) - Options.MTP_stiff*Xk_nsc(jointi.mtp.r))./1};
+                        g               = {g{:}, (T_mtp_r - outputF(jointi.mtp.r) + uReserves_nsc_ini(2) - Options.MTP_stiff*Xk_nsc(jointi.mtp.r))./1};
                         lbg             = [lbg; 0];
                         ubg             = [ubg; 0];
 
                         % Lumbar extension
                         Ft_trunk_ext    = FT_ini([mai(8).mus.l,mai(8).mus.r]',1);
                         T_trunk_ext     = calcMoms.f_T6(MA.trunk_ext,Ft_trunk_ext);
-                        g               = {g{:}, (T_trunk_ext - outputF(jointi.trunk.ext) + uReserves_nsc_ini(15))./1};
+                        g               = {g{:}, (T_trunk_ext - outputF(jointi.trunk.ext))./1};
                         lbg             = [lbg; 0];
                         ubg             = [ubg; 0];
 
                         % Lumbar bending 
                         Ft_trunk_ben    = FT_ini([mai(9).mus.l,mai(9).mus.r]',1);
                         T_trunk_ben     = calcMoms.f_T6(MA.trunk_ben,Ft_trunk_ben);
-                        g               = {g{:}, (T_trunk_ben - outputF(jointi.trunk.ben) + uReserves_nsc_ini(16))./1};
+                        g               = {g{:}, (T_trunk_ben - outputF(jointi.trunk.ben))./1};
                         lbg             = [lbg; 0];
                         ubg             = [ubg; 0];
 
                         % Lumbar rotating
                         Ft_trunk_rot    = FT_ini([mai(10).mus.l,mai(10).mus.r]',1);
                         T_trunk_rot     = calcMoms.f_T6(MA.trunk_rot,Ft_trunk_rot);
-                        g               = {g{:}, (T_trunk_rot - outputF(jointi.trunk.rot) + uReserves_nsc_ini(17))./1};
+                        g               = {g{:}, (T_trunk_rot - outputF(jointi.trunk.rot))./1};
                         lbg             = [lbg; 0];
                         ubg             = [ubg; 0];
 
@@ -1905,119 +1905,119 @@ optimumOutput1 = saveOptimumFiles(scaling1,Options,optVars_sc1,optVars_nsc1,pred
                 % FTk: non-normalised unscaled tendon force
                 Ft_hip_flex_l   = FTkj(mai(1).mus.l',1);
                 T_hip_flex_l    = calcMoms.f_T27(MA.hip_flex.l,Ft_hip_flex_l);
-                g               = {g{:}, (T_hip_flex_l - outputF(jointi.hip_flex.l) + uReserveskj_nsc{j}(1))./1};
+                g               = {g{:}, (T_hip_flex_l - outputF(jointi.hip_flex.l))./1};
                 lbg             = [lbg; 0];
                 ubg             = [ubg; 0];
 
                 % Hip flexion, right
                 Ft_hip_flex_r   = FTkj(mai(1).mus.r',1);
                 T_hip_flex_r    = calcMoms.f_T27(MA.hip_flex.r,Ft_hip_flex_r);
-                g               = {g{:}, (T_hip_flex_r - outputF(jointi.hip_flex.r) + uReserveskj_nsc{j}(2))./1};
+                g               = {g{:}, (T_hip_flex_r - outputF(jointi.hip_flex.r))./1};
                 lbg             = [lbg; 0];
                 ubg             = [ubg; 0];
 
                 % Hip adduction, left
                 Ft_hip_add_l    = FTkj(mai(2).mus.l',1);
                 T_hip_add_l     = calcMoms.f_T27(MA.hip_add.l,Ft_hip_add_l);
-                g               = {g{:}, (T_hip_add_l - outputF(jointi.hip_add.l) + uReserveskj_nsc{j}(3))./1};
+                g               = {g{:}, (T_hip_add_l - outputF(jointi.hip_add.l))./1};
                 lbg             = [lbg; 0];
                 ubg             = [ubg; 0];
 
                 % Hip adduction, right
                 Ft_hip_add_r    = FTkj(mai(2).mus.r',1);
                 T_hip_add_r     = calcMoms.f_T27(MA.hip_add.r,Ft_hip_add_r);
-                g               = {g{:}, (T_hip_add_r - outputF(jointi.hip_add.r) + uReserveskj_nsc{j}(4))./1};
+                g               = {g{:}, (T_hip_add_r - outputF(jointi.hip_add.r))./1};
                 lbg             = [lbg; 0];
                 ubg             = [ubg; 0];
 
                 % Hip rotation, left
                 Ft_hip_rot_l    = FTkj(mai(3).mus.l',1);
                 T_hip_rot_l     = calcMoms.f_T27(MA.hip_rot.l,Ft_hip_rot_l);
-                g               = {g{:}, (T_hip_rot_l - outputF(jointi.hip_rot.l) + uReserveskj_nsc{j}(5))./1};
+                g               = {g{:}, (T_hip_rot_l - outputF(jointi.hip_rot.l))./1};
                 lbg             = [lbg; 0];
                 ubg             = [ubg; 0];
 
                 % Hip rotation, right
                 Ft_hip_rot_r    = FTkj(mai(3).mus.r',1);
                 T_hip_rot_r     = calcMoms.f_T27(MA.hip_rot.r,Ft_hip_rot_r);
-                g               = {g{:}, (T_hip_rot_r - outputF(jointi.hip_rot.r) + uReserveskj_nsc{j}(6))./1};
+                g               = {g{:}, (T_hip_rot_r - outputF(jointi.hip_rot.r))./1};
                 lbg             = [lbg; 0];
                 ubg             = [ubg; 0];
 
                 % Knee, left
                 Ft_knee_l       = FTkj(mai(4).mus.l',1);
                 T_knee_l        = calcMoms.f_T13(MA.knee.l,Ft_knee_l);
-                g               = {g{:}, (T_knee_l - outputF(jointi.knee.l) + uReserveskj_nsc{j}(7))./1};
+                g               = {g{:}, (T_knee_l - outputF(jointi.knee.l))./1};
                 lbg             = [lbg; 0];
                 ubg             = [ubg; 0];
 
                 % Knee, right
                 Ft_knee_r       = FTkj(mai(4).mus.r',1);
                 T_knee_r        = calcMoms.f_T13(MA.knee.r,Ft_knee_r);
-                g               = {g{:}, (T_knee_r - outputF(jointi.knee.r) + uReserveskj_nsc{j}(8))./1};
+                g               = {g{:}, (T_knee_r - outputF(jointi.knee.r))./1};
                 lbg             = [lbg; 0];
                 ubg             = [ubg; 0];
 
                 % Ankle, left
                 Ft_ankle_l      = FTkj(mai(5).mus.l',1);
                 T_ankle_l       = calcMoms.f_T12(MA.ankle.l,Ft_ankle_l);
-                g               = {g{:}, (T_ankle_l - outputF(jointi.ankle.l) + uReserveskj_nsc{j}(9))./1};
+                g               = {g{:}, (T_ankle_l - outputF(jointi.ankle.l))./1};
                 lbg             = [lbg; 0];
                 ubg             = [ubg; 0];
 
                 % Ankle, right
                 Ft_ankle_r      = FTkj(mai(5).mus.r',1);
                 T_ankle_r       = calcMoms.f_T12(MA.ankle.r,Ft_ankle_r);
-                g               = {g{:}, (T_ankle_r - outputF(jointi.ankle.r) + uReserveskj_nsc{j}(10))./1};
+                g               = {g{:}, (T_ankle_r - outputF(jointi.ankle.r))./1};
                 lbg             = [lbg; 0];
                 ubg             = [ubg; 0];
 
                 % Subtalar, left
                 Ft_subt_l       = FTkj(mai(6).mus.l',1);
                 T_subt_l        = calcMoms.f_T12(MA.subt.l,Ft_subt_l);
-                g               = {g{:}, (T_subt_l - outputF(jointi.subt.l) + uReserveskj_nsc{j}(11))./1};
+                g               = {g{:}, (T_subt_l - outputF(jointi.subt.l))./1};
                 lbg             = [lbg; 0];
                 ubg             = [ubg; 0];
 
                 % Subtalar, right
                 Ft_subt_r       = FTkj(mai(6).mus.r',1);
                 T_subt_r        = calcMoms.f_T12(MA.subt.r,Ft_subt_r);
-                g               = {g{:}, (T_subt_r - outputF(jointi.subt.r) + uReserveskj_nsc{j}(12))./1};
+                g               = {g{:}, (T_subt_r - outputF(jointi.subt.r))./1};
                 lbg             = [lbg; 0];
                 ubg             = [ubg; 0];
 
                 % MTP, left
                 Ft_mtp_l        = FTkj(mai(7).mus.l',1);
                 T_mtp_l         = calcMoms.f_T4(MA.mtp.l,Ft_mtp_l);
-                g               = {g{:}, (T_mtp_l - outputF(jointi.mtp.l) + uReserveskj_nsc{j}(13) - Options.MTP_stiff*Xkj_nsc{j}(jointi.mtp.l))./1};
+                g               = {g{:}, (T_mtp_l - outputF(jointi.mtp.l) + uReserveskj_nsc{j}(1) - Options.MTP_stiff*Xkj_nsc{j}(jointi.mtp.l))./1};
                 lbg             = [lbg; 0];
                 ubg             = [ubg; 0];
 
                 % MTP, right
                 Ft_mtp_r        = FTkj(mai(7).mus.r',1);
                 T_mtp_r         = calcMoms.f_T4(MA.mtp.r,Ft_mtp_r);
-                g               = {g{:}, (T_mtp_r - outputF(jointi.mtp.r) + uReserveskj_nsc{j}(14) - Options.MTP_stiff*Xkj_nsc{j}(jointi.mtp.r))./1};
+                g               = {g{:}, (T_mtp_r - outputF(jointi.mtp.r) + uReserveskj_nsc{j}(2) - Options.MTP_stiff*Xkj_nsc{j}(jointi.mtp.r))./1};
                 lbg             = [lbg; 0];
                 ubg             = [ubg; 0];
 
                 % Lumbar extension
                 Ft_trunk_ext    = FTkj([mai(8).mus.l,mai(8).mus.r]',1);
                 T_trunk_ext     = calcMoms.f_T6(MA.trunk_ext,Ft_trunk_ext);
-                g               = {g{:}, (T_trunk_ext - outputF(jointi.trunk.ext) + uReserveskj_nsc{j}(15))./1};
+                g               = {g{:}, (T_trunk_ext - outputF(jointi.trunk.ext))./1};
                 lbg             = [lbg; 0];
                 ubg             = [ubg; 0];
 
                 % Lumbar bending 
                 Ft_trunk_ben    = FTkj([mai(9).mus.l,mai(9).mus.r]',1);
                 T_trunk_ben     = calcMoms.f_T6(MA.trunk_ben,Ft_trunk_ben);
-                g               = {g{:}, (T_trunk_ben - outputF(jointi.trunk.ben) + uReserveskj_nsc{j}(16))./1};
+                g               = {g{:}, (T_trunk_ben - outputF(jointi.trunk.ben))./1};
                 lbg             = [lbg; 0];
                 ubg             = [ubg; 0];
 
                 % Lumbar rotating
                 Ft_trunk_rot    = FTkj([mai(10).mus.l,mai(10).mus.r]',1);
                 T_trunk_rot     = calcMoms.f_T6(MA.trunk_rot,Ft_trunk_rot);
-                g               = {g{:}, (T_trunk_rot - outputF(jointi.trunk.rot) + uReserveskj_nsc{j}(17))./1};
+                g               = {g{:}, (T_trunk_rot - outputF(jointi.trunk.rot))./1};
                 lbg             = [lbg; 0];
                 ubg             = [ubg; 0];
 
@@ -2061,7 +2061,7 @@ optimumOutput1 = saveOptimumFiles(scaling1,Options,optVars_sc1,optVars_nsc1,pred
                         wJ(8).*B(j+1)*(costFunctions.f_J_FT(FTtildekj_nsc{j}))*h + ...
                         wJ(9).*B(j+1)*(costFunctions.f_J_dFT(dFTtildekj_nsc{j}))*h;
 
-                J = J + wJ(10).*B(j+1)*(costFunctions.f_J_reserves(uReserveskj_nsc{j}([1:14,15:end])))*h;
+                J = J + wJ(10).*B(j+1)*(costFunctions.f_J_reserves(uReserveskj_nsc{j}))*h;
                 J = J + wJ(11).*B(j+1)*(costFunctions.f_J_arms(armActskj_nsc{j}))*h;
 
             end
@@ -2209,24 +2209,30 @@ optimumOutput1 = saveOptimumFiles(scaling1,Options,optVars_sc1,optVars_nsc1,pred
                 ubg = [ubg; zeros(nq.arms/2,1)];
 
                 % Reserves symmetry
-                g   = {g{:}, uReserves_nsc_ini([1,3,5,7,9,11,13]) - uReserves_nsc_fin([2,4,6,8,10,12,14])};
-                lbg = [lbg; zeros(7,1)];
-                ubg = [ubg; zeros(7,1)];
+                %g   = {g{:}, uReserves_nsc_ini([1,3,5,7,9,11,13]) - uReserves_nsc_fin([2,4,6,8,10,12,14])};
+                %lbg = [lbg; zeros(7,1)];
+                %ubg = [ubg; zeros(7,1)];
+                g   = {g{:}, uReserves_nsc_ini([1]) - uReserves_nsc_fin([2])};
+                lbg = [lbg; zeros(1,1)];
+                ubg = [ubg; zeros(1,1)];
 
                 % Reserves symmetry
-                g   = {g{:}, uReserves_nsc_fin([1,3,5,7,9,11,13]) - uReserves_nsc_ini([2,4,6,8,10,12,14])};
-                lbg = [lbg; zeros(7,1)];
-                ubg = [ubg; zeros(7,1)];
+                %g   = {g{:}, uReserves_nsc_fin([1,3,5,7,9,11,13]) - uReserves_nsc_ini([2,4,6,8,10,12,14])};
+                %lbg = [lbg; zeros(7,1)];
+                %ubg = [ubg; zeros(7,1)];
+                g   = {g{:}, uReserves_nsc_fin([1]) - uReserves_nsc_ini([2])};
+                lbg = [lbg; zeros(1,1)];
+                ubg = [ubg; zeros(1,1)];
 
                 % Reserves symmetry
-                g   = {g{:}, uReserves_nsc_ini(15) - uReserves_nsc_fin(15)};
-                lbg = [lbg; 0];
-                ubg = [ubg; 0];
+                %g   = {g{:}, uReserves_nsc_ini(15) - uReserves_nsc_fin(15)};
+                %lbg = [lbg; 0];
+                %ubg = [ubg; 0];
 
                 % Reserves symmetry
-                g   = {g{:}, uReserves_nsc_ini([16,17]) + uReserves_nsc_fin([16,17])};
-                lbg = [lbg; zeros(2,1)];
-                ubg = [ubg; zeros(2,1)];
+                %g   = {g{:}, uReserves_nsc_ini([16,17]) + uReserves_nsc_fin([16,17])};
+                %lbg = [lbg; zeros(2,1)];
+                %ubg = [ubg; zeros(2,1)];
 
 
 
@@ -2243,7 +2249,7 @@ optimumOutput1 = saveOptimumFiles(scaling1,Options,optVars_sc1,optVars_nsc1,pred
         FTtilde = zeros(NMuscle,(d+1)*Options.N);  % Normalised Tendon Forces
         armActs = zeros(nq.arms,(d+1)*Options.N);  % Arm Activations
         
-        nReserves = nq.all-nq.abs-nq.arms;
+        nReserves = 2;
 
         dFTtilde_d  = zeros(NMuscle,d*Options.N);
         uActdot_d   = zeros(NMuscle,d*Options.N);
@@ -2724,89 +2730,89 @@ function [termsJ,moments,muscleValues,modelCOM,GRFs,bodyAngles,angMom] = calcObj
                         % FTk: non-normalised unscaled tendon force
                         Ft_hip_flex_l = FT_ini(mai(1).mus.l',1);
                         moments.muscles.T_hip_flex_l(1,1) = full(calcMoms.f_T27(MA.hip_flex.l,Ft_hip_flex_l));
-                        moments.musc_plus_reserve.T_hip_flex_l(1,1) = full(calcMoms.f_T27(MA.hip_flex.l,Ft_hip_flex_l)) + uReserves_nsc_ini(1);
+                        moments.musc_plus_reserve.T_hip_flex_l(1,1) = full(calcMoms.f_T27(MA.hip_flex.l,Ft_hip_flex_l));
                         
                         % Hip flexion, right
                         Ft_hip_flex_r = FT_ini(mai(1).mus.r',1);
                         moments.muscles.T_hip_flex_r(1,1) = full(calcMoms.f_T27(MA.hip_flex.r,Ft_hip_flex_r));
-                        moments.musc_plus_reserve.T_hip_flex_r(1,1) = full(calcMoms.f_T27(MA.hip_flex.r,Ft_hip_flex_r)) + uReserves_nsc_ini(2);
+                        moments.musc_plus_reserve.T_hip_flex_r(1,1) = full(calcMoms.f_T27(MA.hip_flex.r,Ft_hip_flex_r));
 
                         % Hip adduction, left
                         Ft_hip_add_l = FT_ini(mai(2).mus.l',1);
                         moments.muscles.T_hip_add_l(1,1) = full(calcMoms.f_T27(MA.hip_add.l,Ft_hip_add_l));
-                        moments.musc_plus_reserve.T_hip_add_l(1,1) = full(calcMoms.f_T27(MA.hip_add.l,Ft_hip_add_l)) + uReserves_nsc_ini(3);
+                        moments.musc_plus_reserve.T_hip_add_l(1,1) = full(calcMoms.f_T27(MA.hip_add.l,Ft_hip_add_l));
 
                         % Hip adduction, right
                         Ft_hip_add_r = FT_ini(mai(2).mus.r',1);
                         moments.muscles.T_hip_add_r(1,1) = full(calcMoms.f_T27(MA.hip_add.r,Ft_hip_add_r));          
-                        moments.musc_plus_reserve.T_hip_add_r(1,1) = full(calcMoms.f_T27(MA.hip_add.r,Ft_hip_add_r)) + uReserves_nsc_ini(4);
+                        moments.musc_plus_reserve.T_hip_add_r(1,1) = full(calcMoms.f_T27(MA.hip_add.r,Ft_hip_add_r));
 
                         % Hip rotation, left
                         Ft_hip_rot_l = FT_ini(mai(3).mus.l',1);
                         moments.muscles.T_hip_rot_l(1,1) = full(calcMoms.f_T27(MA.hip_rot.l,Ft_hip_rot_l));
-                        moments.musc_plus_reserve.T_hip_rot_l(1,1) = full(calcMoms.f_T27(MA.hip_rot.l,Ft_hip_rot_l)) + uReserves_nsc_ini(5);
+                        moments.musc_plus_reserve.T_hip_rot_l(1,1) = full(calcMoms.f_T27(MA.hip_rot.l,Ft_hip_rot_l));
 
                         % Hip rotation, right
                         Ft_hip_rot_r = FT_ini(mai(3).mus.r',1);
                         moments.muscles.T_hip_rot_r(1,1) = full(calcMoms.f_T27(MA.hip_rot.r,Ft_hip_rot_r));
-                        moments.musc_plus_reserve.T_hip_rot_r(1,1) = full(calcMoms.f_T27(MA.hip_rot.r,Ft_hip_rot_r)) + uReserves_nsc_ini(6);
+                        moments.musc_plus_reserve.T_hip_rot_r(1,1) = full(calcMoms.f_T27(MA.hip_rot.r,Ft_hip_rot_r));
 
                         % Knee, left
                         Ft_knee_l = FT_ini(mai(4).mus.l',1);
                         moments.muscles.T_knee_l(1,1) = full(calcMoms.f_T13(MA.knee.l,Ft_knee_l));
-                        moments.musc_plus_reserve.T_knee_l(1,1) = full(calcMoms.f_T13(MA.knee.l,Ft_knee_l)) + uReserves_nsc_ini(7);
+                        moments.musc_plus_reserve.T_knee_l(1,1) = full(calcMoms.f_T13(MA.knee.l,Ft_knee_l));
 
                         % Knee, right
                         Ft_knee_r = FT_ini(mai(4).mus.r',1);
                         moments.muscles.T_knee_r(1,1) = full(calcMoms.f_T13(MA.knee.r,Ft_knee_r));
-                        moments.musc_plus_reserve.T_knee_r(1,1) = full(calcMoms.f_T13(MA.knee.r,Ft_knee_r)) + uReserves_nsc_ini(8);
+                        moments.musc_plus_reserve.T_knee_r(1,1) = full(calcMoms.f_T13(MA.knee.r,Ft_knee_r));
 
                         % Ankle, left
                         Ft_ankle_l = FT_ini(mai(5).mus.l',1);
                         moments.muscles.T_ankle_l(1,1) = full(calcMoms.f_T12(MA.ankle.l,Ft_ankle_l));
-                        moments.musc_plus_reserve.T_ankle_l(1,1) = full(calcMoms.f_T12(MA.ankle.l,Ft_ankle_l)) + uReserves_nsc_ini(9);
+                        moments.musc_plus_reserve.T_ankle_l(1,1) = full(calcMoms.f_T12(MA.ankle.l,Ft_ankle_l));
 
                         % Ankle, right
                         Ft_ankle_r = FT_ini(mai(5).mus.r',1);
                         moments.muscles.T_ankle_r(1,1) = full(calcMoms.f_T12(MA.ankle.r,Ft_ankle_r));
-                        moments.musc_plus_reserve.T_ankle_r(1,1) = full(calcMoms.f_T12(MA.ankle.r,Ft_ankle_r)) + uReserves_nsc_ini(10);
+                        moments.musc_plus_reserve.T_ankle_r(1,1) = full(calcMoms.f_T12(MA.ankle.r,Ft_ankle_r));
 
                         % Subtalar, left
                         Ft_subt_l = FT_ini(mai(6).mus.l',1);
                         moments.muscles.T_subt_l(1,1) = full(calcMoms.f_T12(MA.subt.l,Ft_subt_l));
-                        moments.musc_plus_reserve.T_subt_l(1,1) = full(calcMoms.f_T12(MA.subt.l,Ft_subt_l)) + uReserves_nsc_ini(11);
+                        moments.musc_plus_reserve.T_subt_l(1,1) = full(calcMoms.f_T12(MA.subt.l,Ft_subt_l));
 
                         % Subtalar, right
                         Ft_subt_r = FT_ini(mai(6).mus.r',1);
                         moments.muscles.T_subt_r(1,1) = full(calcMoms.f_T12(MA.subt.r,Ft_subt_r));
-                        moments.musc_plus_reserve.T_subt_r(1,1) = full(calcMoms.f_T12(MA.subt.r,Ft_subt_r)) + uReserves_nsc_ini(12);
+                        moments.musc_plus_reserve.T_subt_r(1,1) = full(calcMoms.f_T12(MA.subt.r,Ft_subt_r));
 
                         % MTP, left
                         Ft_mtp_l = FT_ini(mai(7).mus.l',1);
                         moments.muscles.T_mtp_l(1,1) = full(calcMoms.f_T4(MA.mtp.l,Ft_mtp_l));
-                        moments.musc_plus_reserve.T_mtp_l(1,1) = full(calcMoms.f_T4(MA.mtp.l,Ft_mtp_l)) + uReserves_nsc_ini(13) - Options.MTP_stiff*Xk_nsc(jointi.mtp.l);
+                        moments.musc_plus_reserve.T_mtp_l(1,1) = full(calcMoms.f_T4(MA.mtp.l,Ft_mtp_l)) + uReserves_nsc_ini(1) - Options.MTP_stiff*Xk_nsc(jointi.mtp.l);
                         moments.passive.T_mtp_l(1,1) =  - Options.MTP_stiff*Xk_nsc(jointi.mtp.l);
 
                         % MTP, right
                         Ft_mtp_r = FT_ini(mai(7).mus.r',1);
                         moments.muscles.T_mtp_r(1,1) = full(calcMoms.f_T4(MA.mtp.r,Ft_mtp_r));
-                        moments.musc_plus_reserve.T_mtp_r(1,1) = full(calcMoms.f_T4(MA.mtp.r,Ft_mtp_r)) + uReserves_nsc_ini(14) - Options.MTP_stiff*Xk_nsc(jointi.mtp.r);
+                        moments.musc_plus_reserve.T_mtp_r(1,1) = full(calcMoms.f_T4(MA.mtp.r,Ft_mtp_r)) + uReserves_nsc_ini(2) - Options.MTP_stiff*Xk_nsc(jointi.mtp.r);
                         moments.passive.T_mtp_r(1,1) =  - Options.MTP_stiff*Xk_nsc(jointi.mtp.r);
 
                         % Lumbar extension
                         Ft_trunk_ext = FT_ini([mai(8).mus.l,mai(8).mus.r]',1);
                         moments.muscles.T_trunk_ext(1,1) = full(calcMoms.f_T6(MA.trunk_ext,Ft_trunk_ext));
-                        moments.musc_plus_reserve.T_trunk_ext(1,1) = full(calcMoms.f_T6(MA.trunk_ext,Ft_trunk_ext)) + uReserves_nsc_ini(15);
+                        moments.musc_plus_reserve.T_trunk_ext(1,1) = full(calcMoms.f_T6(MA.trunk_ext,Ft_trunk_ext));
 
                         % Lumbar bending 
                         Ft_trunk_ben = FT_ini([mai(9).mus.l,mai(9).mus.r]',1);
                         moments.muscles.T_trunk_ben(1,1) = full(calcMoms.f_T6(MA.trunk_ben,Ft_trunk_ben));
-                        moments.musc_plus_reserve.T_trunk_ben(1,1) = full(calcMoms.f_T6(MA.trunk_ben,Ft_trunk_ben)) + uReserves_nsc_ini(16);
+                        moments.musc_plus_reserve.T_trunk_ben(1,1) = full(calcMoms.f_T6(MA.trunk_ben,Ft_trunk_ben));
 
                         % Lumbar rotating
                         Ft_trunk_rot = FT_ini([mai(10).mus.l,mai(10).mus.r]',1);
                         moments.muscles.T_trunk_rot(1,1) = full(calcMoms.f_T6(MA.trunk_rot,Ft_trunk_rot));
-                        moments.musc_plus_reserve.T_trunk_rot(1,1) = full(calcMoms.f_T6(MA.trunk_rot,Ft_trunk_rot)) + uReserves_nsc_ini(17);
+                        moments.musc_plus_reserve.T_trunk_rot(1,1) = full(calcMoms.f_T6(MA.trunk_rot,Ft_trunk_rot));
                         
                     end
                     
@@ -3003,89 +3009,89 @@ function [termsJ,moments,muscleValues,modelCOM,GRFs,bodyAngles,angMom] = calcObj
                 % Hip flexion, left
                 Ft_hip_flex_l = FTk(mai(1).mus.l',1);
                 moments.muscles.T_hip_flex_l(1,index) = full(calcMoms.f_T27(MA.hip_flex.l,Ft_hip_flex_l));
-                moments.musc_plus_reserve.T_hip_flex_l(1,index) = full(calcMoms.f_T27(MA.hip_flex.l,Ft_hip_flex_l)) + uReserveskj_nsc{j}(1);
+                moments.musc_plus_reserve.T_hip_flex_l(1,index) = full(calcMoms.f_T27(MA.hip_flex.l,Ft_hip_flex_l));
 
                 % Hip flexion, right
                 Ft_hip_flex_r = FTk(mai(1).mus.r',1);
                 moments.muscles.T_hip_flex_r(1,index) = full(calcMoms.f_T27(MA.hip_flex.r,Ft_hip_flex_r));
-                moments.musc_plus_reserve.T_hip_flex_r(1,index) = full(calcMoms.f_T27(MA.hip_flex.r,Ft_hip_flex_r)) + uReserveskj_nsc{j}(2);
+                moments.musc_plus_reserve.T_hip_flex_r(1,index) = full(calcMoms.f_T27(MA.hip_flex.r,Ft_hip_flex_r));
 
                 % Hip adduction, left
                 Ft_hip_add_l = FTk(mai(2).mus.l',1);
                 moments.muscles.T_hip_add_l(1,index) = full(calcMoms.f_T27(MA.hip_add.l,Ft_hip_add_l));
-                moments.musc_plus_reserve.T_hip_add_l(1,index) = full(calcMoms.f_T27(MA.hip_add.l,Ft_hip_add_l)) + uReserveskj_nsc{j}(3);
+                moments.musc_plus_reserve.T_hip_add_l(1,index) = full(calcMoms.f_T27(MA.hip_add.l,Ft_hip_add_l));
 
                 % Hip adduction, right
                 Ft_hip_add_r = FTk(mai(2).mus.r',1);
                 moments.muscles.T_hip_add_r(1,index) = full(calcMoms.f_T27(MA.hip_add.r,Ft_hip_add_r));          
-                moments.musc_plus_reserve.T_hip_add_r(1,index) = full(calcMoms.f_T27(MA.hip_add.r,Ft_hip_add_r)) + uReserveskj_nsc{j}(4);
+                moments.musc_plus_reserve.T_hip_add_r(1,index) = full(calcMoms.f_T27(MA.hip_add.r,Ft_hip_add_r));
 
                 % Hip rotation, left
                 Ft_hip_rot_l = FTk(mai(3).mus.l',1);
                 moments.muscles.T_hip_rot_l(1,index) = full(calcMoms.f_T27(MA.hip_rot.l,Ft_hip_rot_l));
-                moments.musc_plus_reserve.T_hip_rot_l(1,index) = full(calcMoms.f_T27(MA.hip_rot.l,Ft_hip_rot_l)) + uReserveskj_nsc{j}(5);
+                moments.musc_plus_reserve.T_hip_rot_l(1,index) = full(calcMoms.f_T27(MA.hip_rot.l,Ft_hip_rot_l));
 
                 % Hip rotation, right
                 Ft_hip_rot_r = FTk(mai(3).mus.r',1);
                 moments.muscles.T_hip_rot_r(1,index) = full(calcMoms.f_T27(MA.hip_rot.r,Ft_hip_rot_r));
-                moments.musc_plus_reserve.T_hip_rot_r(1,index) = full(calcMoms.f_T27(MA.hip_rot.r,Ft_hip_rot_r)) + uReserveskj_nsc{j}(6);
+                moments.musc_plus_reserve.T_hip_rot_r(1,index) = full(calcMoms.f_T27(MA.hip_rot.r,Ft_hip_rot_r));
 
                 % Knee, left
                 Ft_knee_l = FTk(mai(4).mus.l',1);
                 moments.muscles.T_knee_l(1,index) = full(calcMoms.f_T13(MA.knee.l,Ft_knee_l));
-                moments.musc_plus_reserve.T_knee_l(1,index) = full(calcMoms.f_T13(MA.knee.l,Ft_knee_l)) + uReserveskj_nsc{j}(7);
+                moments.musc_plus_reserve.T_knee_l(1,index) = full(calcMoms.f_T13(MA.knee.l,Ft_knee_l));
 
                 % Knee, right
                 Ft_knee_r = FTk(mai(4).mus.r',1);
                 moments.muscles.T_knee_r(1,index) = full(calcMoms.f_T13(MA.knee.r,Ft_knee_r));
-                moments.musc_plus_reserve.T_knee_r(1,index) = full(calcMoms.f_T13(MA.knee.r,Ft_knee_r)) + uReserveskj_nsc{j}(8);
+                moments.musc_plus_reserve.T_knee_r(1,index) = full(calcMoms.f_T13(MA.knee.r,Ft_knee_r));
 
                 % Ankle, left
                 Ft_ankle_l = FTk(mai(5).mus.l',1);
                 moments.muscles.T_ankle_l(1,index) = full(calcMoms.f_T12(MA.ankle.l,Ft_ankle_l));
-                moments.musc_plus_reserve.T_ankle_l(1,index) = full(calcMoms.f_T12(MA.ankle.l,Ft_ankle_l)) + uReserveskj_nsc{j}(9);
+                moments.musc_plus_reserve.T_ankle_l(1,index) = full(calcMoms.f_T12(MA.ankle.l,Ft_ankle_l));
 
                 % Ankle, right
                 Ft_ankle_r = FTk(mai(5).mus.r',1);
                 moments.muscles.T_ankle_r(1,index) = full(calcMoms.f_T12(MA.ankle.r,Ft_ankle_r));
-                moments.musc_plus_reserve.T_ankle_r(1,index) = full(calcMoms.f_T12(MA.ankle.r,Ft_ankle_r)) + uReserveskj_nsc{j}(10);
+                moments.musc_plus_reserve.T_ankle_r(1,index) = full(calcMoms.f_T12(MA.ankle.r,Ft_ankle_r));
 
                 % Subtalar, left
                 Ft_subt_l = FTk(mai(6).mus.l',1);
                 moments.muscles.T_subt_l(1,index) = full(calcMoms.f_T12(MA.subt.l,Ft_subt_l));
-                moments.musc_plus_reserve.T_subt_l(1,index) = full(calcMoms.f_T12(MA.subt.l,Ft_subt_l)) + uReserveskj_nsc{j}(11);
+                moments.musc_plus_reserve.T_subt_l(1,index) = full(calcMoms.f_T12(MA.subt.l,Ft_subt_l));
 
                 % Subtalar, right
                 Ft_subt_r = FTk(mai(6).mus.r',1);
                 moments.muscles.T_subt_r(1,index) = full(calcMoms.f_T12(MA.subt.r,Ft_subt_r));
-                moments.musc_plus_reserve.T_subt_r(1,index) = full(calcMoms.f_T12(MA.subt.r,Ft_subt_r)) + uReserveskj_nsc{j}(12);
+                moments.musc_plus_reserve.T_subt_r(1,index) = full(calcMoms.f_T12(MA.subt.r,Ft_subt_r));
 
                 % MTP, left
                 Ft_mtp_l = FTk(mai(7).mus.l',1);
                 moments.muscles.T_mtp_l(1,index) = full(calcMoms.f_T4(MA.mtp.l,Ft_mtp_l));
-                moments.musc_plus_reserve.T_mtp_l(1,index) = full(calcMoms.f_T4(MA.mtp.l,Ft_mtp_l)) + uReserveskj_nsc{j}(13) - Options.MTP_stiff*Xkj_nsc{j}(jointi.mtp.l);
+                moments.musc_plus_reserve.T_mtp_l(1,index) = full(calcMoms.f_T4(MA.mtp.l,Ft_mtp_l)) + uReserveskj_nsc{j}(1) - Options.MTP_stiff*Xkj_nsc{j}(jointi.mtp.l);
                 moments.passive.T_mtp_l(1,index) =  - Options.MTP_stiff*Xkj_nsc{j}(jointi.mtp.l);
 
                 % MTP, right
                 Ft_mtp_r = FTk(mai(7).mus.r',1);
                 moments.muscles.T_mtp_r(1,index) = full(calcMoms.f_T4(MA.mtp.r,Ft_mtp_r));
-                moments.musc_plus_reserve.T_mtp_r(1,index) = full(calcMoms.f_T4(MA.mtp.r,Ft_mtp_r)) + uReserveskj_nsc{j}(14) - Options.MTP_stiff*Xkj_nsc{j}(jointi.mtp.r);
+                moments.musc_plus_reserve.T_mtp_r(1,index) = full(calcMoms.f_T4(MA.mtp.r,Ft_mtp_r)) + uReserveskj_nsc{j}(2) - Options.MTP_stiff*Xkj_nsc{j}(jointi.mtp.r);
                 moments.passive.T_mtp_r(1,index) =  - Options.MTP_stiff*Xkj_nsc{j}(jointi.mtp.r);
 
                 % Lumbar extension
                 Ft_trunk_ext = FTk([mai(8).mus.l,mai(8).mus.r]',1);
                 moments.muscles.T_trunk_ext(1,index) = full(calcMoms.f_T6(MA.trunk_ext,Ft_trunk_ext));
-                moments.musc_plus_reserve.T_trunk_ext(1,index) = full(calcMoms.f_T6(MA.trunk_ext,Ft_trunk_ext)) + uReserveskj_nsc{j}(15);
+                moments.musc_plus_reserve.T_trunk_ext(1,index) = full(calcMoms.f_T6(MA.trunk_ext,Ft_trunk_ext));
 
                 % Lumbar bending 
                 Ft_trunk_ben = FTk([mai(9).mus.l,mai(9).mus.r]',1);
                 moments.muscles.T_trunk_ben(1,index) = full(calcMoms.f_T6(MA.trunk_ben,Ft_trunk_ben));
-                moments.musc_plus_reserve.T_trunk_ben(1,index) = full(calcMoms.f_T6(MA.trunk_ben,Ft_trunk_ben)) + uReserveskj_nsc{j}(16);
+                moments.musc_plus_reserve.T_trunk_ben(1,index) = full(calcMoms.f_T6(MA.trunk_ben,Ft_trunk_ben));
 
                 % Lumbar rotating
                 Ft_trunk_rot = FTk([mai(10).mus.l,mai(10).mus.r]',1);
                 moments.muscles.T_trunk_rot(1,index) = full(calcMoms.f_T6(MA.trunk_rot,Ft_trunk_rot));
-                moments.musc_plus_reserve.T_trunk_rot(1,index) = full(calcMoms.f_T6(MA.trunk_rot,Ft_trunk_rot)) + uReserveskj_nsc{j}(17);
+                moments.musc_plus_reserve.T_trunk_rot(1,index) = full(calcMoms.f_T6(MA.trunk_rot,Ft_trunk_rot));
                 
                 J_pel_q  = J_pel_q  + wJ(1).*B(j+1)*(costFunctions.f_J_gPelOri(statesF.q_aux(k*(d+1)+1+j,1:3),Xkj_nsc{j}(1:3)))*h;
                 J_pel_t  = J_pel_t  + wJ(2).*B(j+1)*(costFunctions.f_J_gPelTra(statesF.q_aux(k*(d+1)+1+j,5:6),Xkj_nsc{j}(5:6)))*h;
@@ -3098,7 +3104,7 @@ function [termsJ,moments,muscleValues,modelCOM,GRFs,bodyAngles,angMom] = calcObj
                 J_ftTil  = J_ftTil  + wJ(8).*B(j+1)*(costFunctions.f_J_FT(FTtildekj_nsc{j}))*h;
                 J_dftTil = J_dftTil + wJ(9).*B(j+1)*(costFunctions.f_J_dFT(dFTtildekj_nsc{j}))*h;
 
-                J_reserv = J_reserv + wJ(10).*B(j+1)*(costFunctions.f_J_reserves(uReserveskj_nsc{j}([1:14,15:end])))*h;
+                J_reserv = J_reserv + wJ(10).*B(j+1)*(costFunctions.f_J_reserves(uReserveskj_nsc{j}))*h;
                 J_arms   = J_arms   + wJ(11).*B(j+1)*(costFunctions.f_J_arms(armActskj_nsc{j}))*h;
 
                 
