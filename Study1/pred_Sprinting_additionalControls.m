@@ -10,7 +10,7 @@ Options.solver        = 'mumps';
 Options.Hessian       = 'approx';
 Options.tol           = 1;        % 1=1e-4, else=1e-6
 Options.derivatives   = 'AD';     % Use AD
-Options.N             = 80;       % Number of mesh intervals
+Options.N             = 50;       % Number of mesh intervals
 Options.prevSol       = 'N';      % Use prev solution as initial guess;
                                   % Interpolate if necessary; initial guess
                                   % may be adjusted if falls on or off
@@ -27,7 +27,7 @@ pathmain = pwd; % Print Working Directory
 
 
 %% Define folder path to store results
-pathResults = [pathmain, '\SprintingResults\'];
+pathResults = [pathmain, '\PredictiveResults\'];
 addpath(genpath(pathResults));
 
 
@@ -49,7 +49,7 @@ end
 
 
 %% Load External Function
-pathExternalFuncs = [erase(pathmain,'\Study2'),'\ExternalFunctions\'];
+pathExternalFuncs = [erase(pathmain,'\Study1'),'\ExternalFunctions\'];
 
 % Change directory to load functions
 cd(pathExternalFuncs);
@@ -198,7 +198,7 @@ nq.leg   = 10; % #joints needed for polynomials
 % flipped = 1-shifted;
 d = 3; % degree of interpolating polynomial
 method = 'radau'; % collocation method
-cd(erase(pathmain,'\Study2'));
+cd(erase(pathmain,'\Study1'));
 [tau_root,C,D,B] = CollocationScheme(d,method);
 D_control = control_extrapolation(tau_root(2:end));
 cd(pathmain);
@@ -239,7 +239,7 @@ musclesNamesToPrint = {'glut_med1_l','glut_med2_l','glut_med3_l',...
         'ext_hal_r','ercspn_r','intobl_r','extobl_r'};
 
 % Muscle model path
-pathMuscleModel = [erase(pathmain,'\Study2'),'\MuscleModel\'];
+pathMuscleModel = [erase(pathmain,'\Study1'),'\MuscleModel\'];
 addpath(genpath(pathMuscleModel)); 
 
 % Muscle indices; for later use
@@ -250,7 +250,7 @@ NMuscle = length(muscleNames(1:end-3))*2;
  
 % Extract muscle-tendon properties
 osimModelName = 'Scaled_FullBody_HamnerModel_Muscle.osim';
-modelpath = [erase(pathmain,'\Study2'),'\OpenSimModel\'];
+modelpath = [erase(pathmain,'\Study1'),'\OpenSimModel\'];
 addpath(genpath(modelpath));
  
 muscProperties = extractMuscProperties([modelpath osimModelName],muscleNames(1:end-3));
@@ -287,7 +287,7 @@ m_TSL = SX.sym('m_TSL',NMuscle);
 m_vmax = SX.sym('m_vmax',NMuscle); %12.*m_oMFl;
 
 % Polynomials path
-pathpolynomial = [erase(pathmain,'\Study2'),'\Polynomials\'];
+pathpolynomial = [erase(pathmain,'\Study1'),'\Polynomials\'];
 addpath(genpath(pathpolynomial));
 % Indices of the muscles actuating the different joints; for later use
 tl = load('muscle_spanning_joint_INFO_subject9.mat');
@@ -376,13 +376,13 @@ wJ(1)  = 0.00000; % Pelvis orientations
 wJ(2)  = 0.00000; % Pelvis translations excluding horizontal
 wJ(3)  = 0.00000; % Lower-limb angles
 wJ(4)  = 0.00000; % Upper-limb angles & trunk
-wJ(5)  = 0.01; % Accelerations
+wJ(5)  = 0.001; % Accelerations
 wJ(6)  = 0.1; % Muscle activations
-wJ(7)  = 0.01; % Derivative of muscle activations
+wJ(7)  = 0.001; % Derivative of muscle activations
 wJ(8)  = 0.0; % Normalized tendon forces
-wJ(9)  = 0.1; % Derivative of normalized tendon forces
+wJ(9)  = 0.001; % Derivative of normalized tendon forces
 wJ(10) = 100.0; % Reserve actuators
-wJ(11) = 0.01; % Arm controls
+wJ(11) = 0.001; % Arm controls
 wJ(12) = 0.5; % Average speed
 
 
@@ -685,7 +685,7 @@ optimumOutput1 = saveOptimumFiles(scaling1,Options,optVars_sc1,optVars_nsc1,pred
         bounds.uAcc.upper = repmat(bounds.uAcc.upper,1,(d+1)*Options.N);
         
         % Arm Torques scaling factor
-        scaling.uArms = 200; % was 200
+        scaling.uArms = 100; % was 200
         
         % GRF controls scaling factor
         %scaling.uGRF = 2500;
@@ -768,11 +768,11 @@ optimumOutput1 = saveOptimumFiles(scaling1,Options,optVars_sc1,optVars_nsc1,pred
         
         
         % Lower-limbs & Trunk reserves
-        scaling.uReserves = 5.*ones(17,1);
+        scaling.uReserves = 10.*ones(17,1);
         %scaling.uReserves([13:14,],1) = 80;
         %scaling.uReserves([7,8]) = 15;
         scaling.uReserves([13,14]) = 40; %30
-        scaling.uReserves([15,16,17]) = 5;
+        scaling.uReserves([15,16,17]) = 10;
         %scaling.uReserves(15:17) = 50;
         
         % Lower-bounds lower-limbs and trunk reserves
@@ -1029,8 +1029,8 @@ optimumOutput1 = saveOptimumFiles(scaling1,Options,optVars_sc1,optVars_nsc1,pred
         accs_temp = 0;
         scale_accs = 1;
         for i = 1:length(accs)
-            if i > 23 % last trunk DOF
-                scale_accs = 1; % 0.001
+            if i > 20 % last trunk DOF
+                scale_accs = 0.01; % 0.001
             end
             accs_temp = accs_temp + ((accs(i)./obj_range.uAcc(i)).^2)*scale_accs;
         end
@@ -2080,7 +2080,7 @@ optimumOutput1 = saveOptimumFiles(scaling1,Options,optVars_sc1,optVars_nsc1,pred
                 yGRFk_r = sum(outputF(outInd.r_contGRF(1)+1:3:outInd.r_contGRF(end)-1));
                 g   = {g{:}, yGRFk_r};
                 lbg = [lbg; 0];
-                ubg = [ubg; 50];
+                ubg = [ubg; 300];
 
             end
 
@@ -2094,9 +2094,9 @@ optimumOutput1 = saveOptimumFiles(scaling1,Options,optVars_sc1,optVars_nsc1,pred
 
                 change_p_disp = Xk_nsc_fin(4) - Xk_nsc_ini(4);
 
-                g   = {g{:}, Xk_nsc_fin(4) - Xk_nsc_ini(4)};
-                lbg = [lbg; 0];
-                ubg = [ubg; 2.7];
+                %g   = {g{:}, Xk_nsc_fin(4) - %Xk_nsc_ini(4)};
+                %lbg = [lbg; 0];
+                %ubg = [ubg; 2.7];
 
                 % Multibody dynamics symmetry
 
@@ -2426,13 +2426,13 @@ optimumOutput1 = saveOptimumFiles(scaling1,Options,optVars_sc1,optVars_nsc1,pred
     motData.labels = stateNames(1,1:nq.all+1);
     motData.data   = [timeGrid q_deg'];
 
-    save([pathResults 'pred_Sprinting_maxSpeed_' num2str(Options.N) '_meshInts_optimum_STR' erase(statesFname,'.mot') '_' datestr(now,'dd-mmmm-yyyy__HH-MM-SS') '.mat'],'optimumOutput');
-    write_motionFile(motData,[pathResults 'pred_Sprinting_maxSpeed_' num2str(Options.N) '_meshInts_optimum_STR' datestr(now,'dd-mmmm-yyyy__HH-MM-SS') '_' statesFname]);
+    save([pathResults 'pred_Sprinting_maxSpeed_' num2str(Options.N) '_meshInts_optimum_' erase(statesFname,'.mot') '_' datestr(now,'dd-mmmm-yyyy__HH-MM-SS') '.mat'],'optimumOutput');
+    write_motionFile(motData,[pathResults 'pred_Sprinting_maxSpeed_' num2str(Options.N) '_meshInts_optimum_' datestr(now,'dd-mmmm-yyyy__HH-MM-SS') '_' statesFname]);
         
     stoData.labels = cat(1,[stateNames{1,1} musclesToPrint]);
     stoData.data   = [timeGrid optVars_nsc.act'];
     
-    write_storageFile(stoData,[pathResults 'pred_Sprinting_maxSpeed_acts_' num2str(Options.N) '_meshInts_optimum_STR' datestr(now,'dd-mmmm-yyyy__HH-MM-SS') '.sto']);
+    write_storageFile(stoData,[pathResults 'pred_Sprinting_maxSpeed_acts_' num2str(Options.N) '_meshInts_optimum_' datestr(now,'dd-mmmm-yyyy__HH-MM-SS') '.sto']);
 
     
     end
