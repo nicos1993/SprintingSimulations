@@ -1,4 +1,4 @@
-function [] = createStride_v2(optimumOutput,fileName_mot,fileName_act)
+function [] = createStride_v2(optimumOutput,fileName_mot,fileName_act,translate)
 
     dummyFile_mot = readMOT(fileName_mot);
 
@@ -56,10 +56,14 @@ function [] = createStride_v2(optimumOutput,fileName_mot,fileName_act)
     
     stride_q(:,[1:3,7:37]) = rad2deg(stride_q(:,[1:3,7:37]));
     
+    if translate == 'N'
+        stride_q(:,4) = 0;
+    end
+    
     motData.labels = dummyFile_mot.labels;
     motData.data   = [stride_timeGrid stride_q];
     
-    write_motionFile(motData,'pred_Sprinting_symmetric_stride.mot');
+    write_motionFile(motData,['symmetric_stride_' fileName_mot]);
     
     if nargin == 3
         
@@ -79,7 +83,7 @@ function [] = createStride_v2(optimumOutput,fileName_mot,fileName_act)
         actData.labels = dummyFile_act.labels;
         actData.data   = [stride_timeGrid stride_act];
         
-        write_storageFile(actData,'pred_Sprinting_symmetric_stride_act.sto');
+        write_storageFile(actData,['symmetric_stride_' fileName_act]);
 
     end
 
