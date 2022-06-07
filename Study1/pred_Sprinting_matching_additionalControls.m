@@ -2199,30 +2199,30 @@ optimumOutput1 = saveOptimumFiles(scaling1,Options,optVars_sc1,optVars_nsc1,pred
                 armExct_nsc_fin   = armExctkj_nsc{j};
 
                 % Arm Excitations symmetry
-                g   = {g{:}, armExct_nsc_ini(1:nq.arms/2) - armExct_nsc_fin((nq.arms/2)+1:end)};
-                lbg = [lbg; zeros(nq.arms/2,1)];
-                ubg = [ubg; zeros(nq.arms/2,1)];         
+                %g   = {g{:}, armExct_nsc_ini(1:nq.arms/2) - armExct_nsc_fin((nq.arms/2)+1:end)};
+                %lbg = [lbg; zeros(nq.arms/2,1)];
+                %ubg = [ubg; zeros(nq.arms/2,1)];         
 
                 % Arm Excitations symmetry
-                g   = {g{:}, armExct_nsc_ini((nq.arms/2)+1:end) - armExct_nsc_fin(1:nq.arms/2)};
-                lbg = [lbg; zeros(nq.arms/2,1)];
-                ubg = [ubg; zeros(nq.arms/2,1)];
+                %g   = {g{:}, armExct_nsc_ini((nq.arms/2)+1:end) - armExct_nsc_fin(1:nq.arms/2)};
+                %lbg = [lbg; zeros(nq.arms/2,1)];
+                %ubg = [ubg; zeros(nq.arms/2,1)];
 
                 % Reserves symmetry
                 %g   = {g{:}, uReserves_nsc_ini([1,3,5,7,9,11,13]) - uReserves_nsc_fin([2,4,6,8,10,12,14])};
                 %lbg = [lbg; zeros(7,1)];
                 %ubg = [ubg; zeros(7,1)];
-                g   = {g{:}, uReserves_nsc_ini([1]) - uReserves_nsc_fin([2])};
-                lbg = [lbg; zeros(1,1)];
-                ubg = [ubg; zeros(1,1)];
+                %g   = {g{:}, uReserves_nsc_ini([1]) - uReserves_nsc_fin([2])};
+                %lbg = [lbg; zeros(1,1)];
+                %ubg = [ubg; zeros(1,1)];
 
                 % Reserves symmetry
                 %g   = {g{:}, uReserves_nsc_fin([1,3,5,7,9,11,13]) - uReserves_nsc_ini([2,4,6,8,10,12,14])};
                 %lbg = [lbg; zeros(7,1)];
                 %ubg = [ubg; zeros(7,1)];
-                g   = {g{:}, uReserves_nsc_fin([1]) - uReserves_nsc_ini([2])};
-                lbg = [lbg; zeros(1,1)];
-                ubg = [ubg; zeros(1,1)];
+                %g   = {g{:}, uReserves_nsc_fin([1]) - uReserves_nsc_ini([2])};
+                %lbg = [lbg; zeros(1,1)];
+                %ubg = [ubg; zeros(1,1)];
 
                 % Reserves symmetry
                 %g   = {g{:}, uReserves_nsc_ini(15) - uReserves_nsc_fin(15)};
