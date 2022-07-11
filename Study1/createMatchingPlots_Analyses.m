@@ -1,13 +1,15 @@
 clear
 clc
 
-opt_fname = 'pred_Sprinting_maxSpeed_50_meshInts_optimum_STR27-May-2022__10-32-55_p02_maxVel_01.mot';
+opt_fname = 'pred_Sprinting_matching_50_meshInts_optimum_20-June-2022__10-36-23_p02_maxVel_01.mot';
 nom_fname = 'Splined_50_meshInts_p02_maxVel_01.mot';
 nom_grf_fname = 'p02_m_01_labelled_grf.mot';
 
-opt_f_mat = load('pred_Sprinting_maxSpeed_50_meshInts_optimum_STRp02_maxVel_01_27-May-2022__10-32-54.mat');
+opt_f_mat = load('pred_Sprinting_matching_50_meshInts_optimum_p02_maxVel_01_20-June-2022__10-36-23.mat');
+opt_f_mat1 = load('pred_Sprinting_matching_50_meshInts_optimum_p02_maxVel_01_08-July-2022__02-28-24.mat');
+%opt_f_mat = opt_f_mat1;
 
-opt_act_fname = 'pred_Sprinting_symmetric_stride_act.sto';
+opt_act_fname = 'symmetric_stride_pred_Sprinting_matching_acts_50_meshInts_optimum_20-June-2022__10-36-23.sto';
 
 exp_data = load('ID_max_v_01.mat');
 
@@ -30,6 +32,39 @@ opt_takeoff_frame = find(opt_f_mat.optimumOutput.GRFs.R(10:end,2) < 20,1) + 8;
 opt_takeoff_time = opt_f_mat.optimumOutput.timeNodes(opt_takeoff_frame);
 [~,opt_takeoff_kin_ind] = min(abs(opt_data(:,1) - opt_takeoff_time));
 opt_takeoff_act_ind = find(opt_act.data(:,1) == opt_data(opt_takeoff_kin_ind,1));
+
+% Calculate contact time
+
+% Raw GRF
+raw_index_start = idx_grf_start+3;
+raw_index_end = find(nom_grf_data(idx_grf_start+5:end,30)<20,1)+idx_grf_start-2+5;
+raw_tc = nom_grf_data(find(nom_grf_data(idx_grf_start+5:end,30)<20,1)+idx_grf_start-2+5,1) - nom_grf_data(idx_grf_start+3,1);
+
+% Filtered GRF
+filt_index_start = 1;
+filt_index_end = find(exp_data.intGRF(:,2)<20,1);
+filt_tc = exp_data.timeGrid(find(exp_data.intGRF(:,2)<20,1)) - exp_data.timeGrid(1,1);
+
+% Predictive GRF
+opt_index_start = 1;
+opt_index_end = find(opt_f_mat.optimumOutput.GRFs.R(10:end,2)<20,1)+8;
+opt_tc = opt_f_mat.optimumOutput.timeNodes(find(opt_f_mat.optimumOutput.GRFs.R(10:end,2)<20,1)+8,1)-opt_f_mat.optimumOutput.timeNodes(1,1);
+
+opt_index_start1 = 1;
+opt_index_end1 = find(opt_f_mat1.optimumOutput.GRFs.R(10:end,2)<20,1)+8;
+opt_tc1 = opt_f_mat1.optimumOutput.timeNodes(find(opt_f_mat1.optimumOutput.GRFs.R(10:end,2)<20,1)+8,1)-opt_f_mat1.optimumOutput.timeNodes(1,1);
+
+% Calculate vertical impulse
+
+% Raw GRF
+raw_impulse = trapz(nom_grf_data(raw_index_start:raw_index_end,1),nom_grf_data(raw_index_start:raw_index_end,30));
+
+% Filtered GRF
+filt_impulse = trapz(exp_data.timeGrid(filt_index_start:filt_index_end,1),exp_data.intGRF(filt_index_start:filt_index_end,2));
+
+% Predictive GRF
+opt_impulse = trapz(opt_f_mat.optimumOutput.timeNodes(opt_index_start:opt_index_end,1),opt_f_mat.optimumOutput.GRFs.R(opt_index_start:opt_index_end,2));
+opt_impulse1 = trapz(opt_f_mat1.optimumOutput.timeNodes(opt_index_start1:opt_index_end1,1),opt_f_mat1.optimumOutput.GRFs.R(opt_index_start1:opt_index_end1,2));
 
 
 musclesNames = {'glut_med1_l','glut_med2_l','glut_med3_l',...
@@ -323,6 +358,7 @@ subplot(4,4,1)
 plot(opt_f_mat.optimumOutput.timeNodes,opt_f_mat.optimumOutput.GRFs.R(:,1),'linewidth',1.5,'color','r');
 hold on
 plot(nom_grf_data(idx_grf_start:idx_grf_end,1),nom_grf_data(idx_grf_start:idx_grf_end,29),'linewidth',1.5,'color','b');
+plot(opt_f_mat1.optimumOutput.timeNodes,opt_f_mat1.optimumOutput.GRFs.R(:,1),'linewidth',1.5,'color','k');
 plot(exp_data.timeGrid,exp_data.intGRF(:,1),'linewidth',1.5,'color','g');
 xlabel('Time (s)','fontweight','bold')
 ylabel(['Ant-Post GRF (N)'],'fontweight','bold')
@@ -335,6 +371,7 @@ subplot(4,4,2)
 plot(opt_f_mat.optimumOutput.timeNodes,opt_f_mat.optimumOutput.GRFs.R(:,2),'linewidth',1.5,'color','r');
 hold on
 plot(nom_grf_data(idx_grf_start:idx_grf_end,1),nom_grf_data(idx_grf_start:idx_grf_end,30)','linewidth',1.5,'color','b');
+plot(opt_f_mat1.optimumOutput.timeNodes,opt_f_mat1.optimumOutput.GRFs.R(:,2),'linewidth',1.5,'color','k');
 plot(exp_data.timeGrid,exp_data.intGRF(:,2),'linewidth',1.5,'color','g');
 xlabel('Time (s)','fontweight','bold')
 ylabel(['Vert GRF (N)'],'fontweight','bold')

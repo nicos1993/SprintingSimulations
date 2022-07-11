@@ -1,4 +1,4 @@
-function [] = pred_Sprinting_matching_additionalControls()
+function [] = pred_Sprinting_additionalControls_v2()
 
 clc
 
@@ -18,7 +18,7 @@ Options.prevSol       = 'N';      % Use prev solution as initial guess;
 Options.MTP_stiff     = 65;       % MTP Spring Stiffness (Nm/rad)
 Options.constIniPoint = 'Y';      % 'Y'=constrain states @ mesh 1 point 1 using 
                                   % experimental data
-Options.timePercent   = 0.025;      % Reduce overall time by % set
+Options.timePercent   = 0.1;      % Reduce overall time by % set
 Options.symmetry      = 'Y';      % Impose symmetry
 %Options.speed         = 11.0;      % Desired average pelvis speed (m/s)
 
@@ -27,7 +27,7 @@ pathmain = pwd; % Print Working Directory
 
 
 %% Define folder path to store results
-pathResults = [pathmain, '\MatchingResults\'];
+pathResults = [pathmain, '\PredictiveResults\'];
 addpath(genpath(pathResults));
 
 
@@ -404,8 +404,7 @@ w   = {w1{:}, finalTime};
 w0  = [w01 guess1.totalTime];
 lbw = [lbw1 bounds_sc1.totalTime.lower];
 ubw = [ubw1 bounds_sc1.totalTime.upper];
-%J   = J1 + (wJ(12).*(((change_disp)./finalTime_nsc)-9.81)^2);
-J   = J1 + wJ(12).*finalTime_nsc + (0.20*(log(sum_v_GRF)));
+J   = J1 - (wJ(12).*(((change_disp)./finalTime_nsc)));
 g   = {g1{:}};
 lbg = [lbg1];
 ubg = [ubg1];
@@ -2120,13 +2119,13 @@ optimumOutput1 = saveOptimumFiles(scaling1,Options,optVars_sc1,optVars_nsc1,pred
 
                 change_p_disp = Xk_nsc_fin(4) - Xk_nsc_ini(4);
                 
-                g   = {g{:}, change_p_disp - 9.81*finalTime_nsc}; % Matching speed
-                lbg = [lbg; 0];
-                ubg = [ubg; 0];
+                %g   = {g{:}, change_p_disp - 9.81*finalTime_nsc}; % Matching speed
+                %lbg = [lbg; 0];
+                %ubg = [ubg; 0];
 
                 %g   = {g{:}, Xk_nsc_fin(4) - Xk_nsc_ini(4)};
                 %lbg = [lbg; 0];
-                %ubg = [ubg; 2.15];
+                %ubg = [ubg; 2.3833];
 
                 % Multibody dynamics symmetry
 

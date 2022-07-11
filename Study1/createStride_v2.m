@@ -65,7 +65,7 @@ function [] = createStride_v2(optimumOutput,fileName_mot,fileName_act,translate)
     
     write_motionFile(motData,['symmetric_stride_' fileName_mot]);
     
-    if nargin == 3
+    if nargin >= 3
         
         dummyFile_act = readMOT(fileName_act);
                 
